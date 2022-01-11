@@ -1,0 +1,100 @@
+{
+    "zabbix_export": {
+        "version": "5.4",
+        "date": "2022-01-11T13:13:58Z",
+        "groups": [
+            {
+                "uuid": "7df96b18c230490a9a0a9e2307226338",
+                "name": "Templates"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "a5c9cc9097c347ca865d3199e256867e",
+                "template": "Check directory changes in iis",
+                "name": "Check directory changes in iis",
+                "groups": [
+                    {
+                        "name": "Templates"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "a242d580d26e4981b766f0afb1e939da",
+                        "name": "Check directory {$DIR}",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "system.run[\"cd {$DIR} && forfiles /p . /D +0\"]",
+                        "delay": "60m",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "tags": [
+                            {
+                                "tag": "Application",
+                                "value": "Directory"
+                            }
+                        ],
+                        "triggers": [
+                            {
+                                "uuid": "5470bdafb9d24d8c9a4aae7b1d5c2597",
+                                "expression": "change(/Check directory changes in iis/system.run[\"cd {$DIR} && forfiles /p . /D +0\"])<>0",
+                                "name": "The root directory was changed",
+                                "priority": "WARNING",
+                                "manual_close": "YES"
+                            }
+                        ]
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "f06dd2763c054e728ece9d8b1ebea1f6",
+                        "name": "Find iis pool directories",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "system.run[\"cd {$DIR} && dir /A:D /B\"]",
+                        "delay": "60m",
+                        "item_prototypes": [
+                            {
+                                "uuid": "3ac9d009ad4d49d993c3958d9f153882",
+                                "name": "Check changes of {#DIRECTORY}",
+                                "type": "ZABBIX_ACTIVE",
+                                "key": "system.run[\"cd C:\\inetpub\\wwwroot\\{#DIRECTORY} && forfiles /p . /S /D +0\"]",
+                                "delay": "30m",
+                                "history": "7d",
+                                "trends": "0",
+                                "value_type": "TEXT",
+                                "tags": [
+                                    {
+                                        "tag": "Application",
+                                        "value": "Directory"
+                                    }
+                                ],
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "2150ebf9cbcf469dbcb4d5b213f3b5f4",
+                                        "expression": "change(/Check directory changes in iis/system.run[\"cd C:\\inetpub\\wwwroot\\{#DIRECTORY} && forfiles /p . /S /D +0\"])<>0",
+                                        "name": "The {#DIRECTORY} directory was changed",
+                                        "priority": "WARNING",
+                                        "manual_close": "YES"
+                                    }
+                                ]
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JAVASCRIPT",
+                                "parameters": [
+                                    "var str= value;\nvar value= value.split(/\\s+/);\nvar lines_num = value.length;\nfor (i = 0; i < lines_num; i++)\n{\n  var row = {};\n  row[\"{#DIRECTORY}\"] = value[i]\n  value.push(row);\n}\nreturn JSON.stringify(value);"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$DIR}",
+                        "value": "C:\\inetpub\\wwwroot"
+                    }
+                ]
+            }
+        ]
+    }
+}
